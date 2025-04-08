@@ -1,18 +1,18 @@
-from delivery_app.config import SECRET_KEY, REFRESH_TOKEN_EXPIRE_DAYS, ALGORITHM
-from jose import jwt
-from passlib.context import CryptContext
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from datetime import timedelta, datetime
-from fastapi_limiter.depends import RateLimiter
 from delivery_app.db.database import SessionLocal
-from typing import Optional
 from delivery_app.db.schema import UserProfileSchema
 from delivery_app.db.models import UserProfile, RefreshToken
 from fastapi import Depends, HTTPException, APIRouter
 from sqlalchemy.orm import Session
+from typing import Optional
+from datetime import timedelta, datetime
 from starlette.requests import Request
 from delivery_app.config import settings
 from authlib.integrations.starlette_client import OAuth
+from fastapi_limiter.depends import RateLimiter
+from delivery_app.config import SECRET_KEY, REFRESH_TOKEN_EXPIRE_DAYS, ALGORITHM
+from jose import jwt
+from passlib.context import CryptContext
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 oauth = OAuth()
 oauth.register(
@@ -22,7 +22,7 @@ oauth.register(
     authorize_url='https://github.com/login/oauth/authorize'
 )
 
-auth_router = APIRouter(prefix='/auth', tags=['Authorization'])
+auth_router = APIRouter(prefix='/oauth', tags=['Authorization'])
 
 oauth2_schema = OAuth2PasswordBearer(tokenUrl='/auth/login/')
 password_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -82,7 +82,7 @@ async def register(user: UserProfileSchema, db: Session = Depends(get_db)):
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(UserProfile).filter(UserProfile.username == form_data.username).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
-        return HTTPException(status_code=401, detail='Wrong data')
+        raise HTTPException(status_code=401, detail='Wrong data')
     access_token = create_access_token({'sub': user.username})
     refresh_token = create_refresh_token({'sub': user.username})
     token_db = RefreshToken(token=refresh_token, user_id=user.id)
@@ -113,8 +113,7 @@ async def refresh(refresh_token: str, db: Session = Depends(get_db)):
     return {'access_token': access_token, 'token_type': 'bearer'}
 
 
-@auth_router.get("/github")
+@auth_router.get("/github/")
 async def github_login(request: Request):
     redirect_url = settings.GITHUB_LOGIN_CALLBACK
     return await oauth.github.authorize_redirect(request, redirect_url)
-

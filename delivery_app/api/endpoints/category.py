@@ -44,6 +44,7 @@ async def category_update(category_id: int, category: CategorySchema,
     category_db = db.query(Category).filter(Category.id == category_id).first()
     if category_db is None:
         raise HTTPException(status_code=404, detail='Category not found')
+
     category_db.category_name = category.category_name
     db.add(category_db)
     db.commit()

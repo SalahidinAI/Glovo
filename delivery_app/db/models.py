@@ -80,7 +80,7 @@ class RefreshToken(Base):
 
     id: Mapped[int] = mapped_column(Integer, autoincrement=True, primary_key=True)
     token: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    created_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow())
+    created_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     user_id: Mapped[int] = mapped_column(ForeignKey('user_profile.id'))
     user: Mapped['UserProfile'] = relationship('UserProfile', back_populates='user_tokens')
 
@@ -176,7 +176,7 @@ class Order(Base):
     delivery_address: Mapped[str] = mapped_column(String(128))
     courier_id: Mapped[int] = mapped_column(ForeignKey('user_profile.id'))
     courier: Mapped['UserProfile'] = relationship('UserProfile', back_populates='deliveries', foreign_keys=[courier_id])
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow())
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 
 class Courier(Base):
@@ -205,7 +205,7 @@ class StoreReview(Base):
     store: Mapped['Store'] = relationship('Store', back_populates='store_reviews', foreign_keys=[store_id])
     text: Mapped[str] = mapped_column(Text)
     star: Mapped[StarChoices] = mapped_column(Enum(StarChoices))
-    created_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow())
+    created_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 
 class CourierReview(Base):
@@ -218,4 +218,4 @@ class CourierReview(Base):
     courier_id: Mapped[int] = mapped_column(ForeignKey('courier.id'))
     courier: Mapped['Courier'] = relationship('Courier', back_populates='courier_reviews', foreign_keys=[courier_id])
     star: Mapped[StarChoices] = mapped_column(Enum(StarChoices))
-    created_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow())
+    created_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
