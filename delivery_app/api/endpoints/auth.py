@@ -22,7 +22,7 @@ oauth.register(
     authorize_url='https://github.com/login/oauth/authorize'
 )
 
-auth_router = APIRouter(prefix='/oauth', tags=['Authorization'])
+auth_router = APIRouter(prefix='/auth', tags=['Authorization'])
 
 oauth2_schema = OAuth2PasswordBearer(tokenUrl='/auth/login/')
 password_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
