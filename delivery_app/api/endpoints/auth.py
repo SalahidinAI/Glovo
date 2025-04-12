@@ -2,17 +2,16 @@ from delivery_app.db.database import SessionLocal
 from delivery_app.db.schema import UserProfileSchema
 from delivery_app.db.models import UserProfile, RefreshToken
 from fastapi import Depends, HTTPException, APIRouter
-from sqlalchemy.orm import Session
+from jose import jwt
 from typing import Optional
 from datetime import timedelta, datetime
-from starlette.requests import Request
-from delivery_app.config import settings
-from authlib.integrations.starlette_client import OAuth
-from fastapi_limiter.depends import RateLimiter
-from delivery_app.config import SECRET_KEY, REFRESH_TOKEN_EXPIRE_DAYS, ALGORITHM
-from jose import jwt
+from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from starlette.requests import Request
+from delivery_app.config import SECRET_KEY, REFRESH_TOKEN_EXPIRE_DAYS, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, settings
+from fastapi_limiter.depends import RateLimiter
+from authlib.integrations.starlette_client import OAuth
 
 oauth = OAuth()
 oauth.register(
@@ -38,7 +37,7 @@ async def get_db():
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta if expires_delta else timedelta(minutes=10))
+    expire = datetime.utcnow() + (expires_delta if expires_delta else timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({'exp': expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
