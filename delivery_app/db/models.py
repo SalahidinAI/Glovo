@@ -47,6 +47,7 @@ class UserProfile(Base):
     age: Mapped[int or None] = mapped_column(Integer, nullable=True)
     status: Mapped[StatusChoices] = mapped_column(Enum(StatusChoices), default=StatusChoices.client.value)
     date_registered: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
     user_store: Mapped[List['Store']] = relationship('Store', back_populates='owner',
                                                      cascade='all, delete-orphan')
     orders: Mapped[List['Order']] = relationship('Order', back_populates='client', foreign_keys='Order.client_id',
